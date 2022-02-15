@@ -8,22 +8,39 @@ from bqhelper import BQConnection
 import numpy as np
 from collections import OrderedDict
 from sortedcontainers import SortedSet
+import logging
+log = logging.getLogger(__name__)
 
 bq = BQConnection()
 
 
-class CustomerBase:
+class Cohort:
 
-    def __init__(self):
-        print('Loading customer information, this can take a moment')
+    def __init__(self, customers, base_data=None):
+        self.customers = customers
+        if base_data is not None:
+            self.base_data = base_data
+
+
+    def __len__(self):
+        return len(self.customers)
+
+    @classmethod
+    def init_all_customers(cls):
+        log.warning('Loading customer information, this may take a few minutes')
         query = base_table_query()
         base_data = bq.get_df_from_query(query)
-        self.base_data = base_data
-        self.customers = [Customer(row) for row in self.base_data.itertuples()]
+        base_data = base_data
+        customers = [Customer(row) for row in base_data.itertuples()]
+        log.info('Customers were loaded')
+        return cls(customers=customers, base_data=base_data)
 
 
     def generate_cohort(self, cohort_function):
-        return [cus for cus in self.customers if cohort_function(cus)]
+        cohort_customers = [cus for cus in self.customers if cohort_function(cus)]
+        return Cohort(customers=cohort_customers)
+
+    #TODO load(attribute) to update attribute on all customers
 
 
 class Customer:
@@ -44,6 +61,11 @@ class Customer:
 
     def __repr__(self):
         return f'Customer: {self.account_number}'
+
+
+    @property
+    def customer_id(self):
+        return self.account_number
 
     @property
     def account_number(self):
