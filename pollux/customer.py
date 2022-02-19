@@ -3,7 +3,8 @@
 import warnings
 warnings.simplefilter(action='ignore')
 import pandas as pd
-from pollux.queries import base_table_query
+from pollux.queries.queries import base_table_query
+from pollux.enrichment.enrichments import registry
 from bqhelper import BQConnection
 import numpy as np
 from collections import OrderedDict
@@ -16,11 +17,14 @@ bq = BQConnection()
 
 class Cohort:
 
+    #TODO Generate cohort from query that returns customer ids
+
     def __init__(self, customers, base_data=None):
         self.customers = customers
         if base_data is not None:
             self.base_data = base_data
 
+        self.customer_lookup = {cus.customer_id:cus for cus in self.customers}
 
     def __len__(self):
         return len(self.customers)
@@ -40,13 +44,25 @@ class Cohort:
         cohort_customers = [cus for cus in self.customers if cohort_function(cus)]
         return Cohort(customers=cohort_customers)
 
-    #TODO load(attribute) to update attribute on all customers
+
+    def update_customers(self, enrichment_name):
+        if enrichment_name not in registry:
+            log.warning('Enrichment not registered')
+        else:
+            enrichment = registry[enrichment_name]()
+            # Loads the data as specified by the cohort and updates the
+            # customers with that data
+            enrichment.query_data()
+            enrichment.update_cohort(self)
+
 
 
 class Customer:
 
-    def __init__(self, row):
+    def __init__(self, row, additional_data=None):
         self.base_row = row
+        self.bb_info = None
+
         timestamps = [self.account_churn_date,self.end_of_onboarding_period,
             self.first_service_live_date, self.end_of_onboarding_period, self.sign_up_date]
         self.significant_timestamps = SortedSet([stamp for stamp in timestamps if stamp])
@@ -58,6 +74,7 @@ class Customer:
         for i, row in data.iterrows():
             break
         return cls(row=row)
+
 
     def __repr__(self):
         return f'Customer: {self.account_number}'
