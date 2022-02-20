@@ -39,6 +39,17 @@ class Cohort:
         log.info('Customers were loaded')
         return cls(customers=customers, base_data=base_data)
 
+    @classmethod
+    def init_sample(cls, sample_size=1000):
+        sample_query = f"""SELECT * FROM
+        uw-data-models-prod.customer_dataform_models.customer_base
+        WHERE account_status != 'TML'
+        LIMIT {sample_size}"""
+        base_data = bq.get_df_from_query(sample_query)
+        base_data = base_data
+        customers = [Customer(row) for row in base_data.itertuples()]
+        return cls(customers=customers, base_data=base_data)
+
 
     def generate_cohort(self, cohort_function):
         cohort_customers = [cus for cus in self.customers if cohort_function(cus)]
@@ -82,7 +93,7 @@ class Customer:
 
     @property
     def customer_id(self):
-        return self.account_number
+        return int(self.account_number)
 
     @property
     def account_number(self):
