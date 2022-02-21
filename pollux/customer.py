@@ -24,10 +24,15 @@ class Cohort:
         if base_data is not None:
             self.base_data = base_data
 
+        self.applied_enrichments = []
+
         self.customer_lookup = {cus.customer_id:cus for cus in self.customers}
 
     def __len__(self):
         return len(self.customers)
+
+    def __getitem__(self, a):
+        return self.customers[a]
 
     @classmethod
     def init_all_customers(cls):
@@ -52,7 +57,7 @@ class Cohort:
 
 
     def generate_cohort(self, cohort_function):
-        cohort_customers = [cus for cus in self.customers if cohort_function(cus)]
+        cohort_customers = [cus for cus in self if cohort_function(cus)]
         return Cohort(customers=cohort_customers)
 
 
@@ -65,6 +70,7 @@ class Cohort:
             # customers with that data
             enrichment.query_data()
             enrichment.update_cohort(self)
+            self.applied_enrichments.append(enrichment.name)
 
 
 
@@ -74,9 +80,6 @@ class Customer:
         self.base_row = row
         self.bb_info = None
 
-        timestamps = [self.account_churn_date,self.end_of_onboarding_period,
-            self.first_service_live_date, self.end_of_onboarding_period, self.sign_up_date]
-        self.significant_timestamps = SortedSet([stamp for stamp in timestamps if stamp])
 
     @classmethod
     def from_id(cls, account_id):
