@@ -21,6 +21,7 @@ base_table_identifier = 'cb.account_number'
 broadband_query = """
 SELECT *
 FROM uw-data-models-prod.telecoms_dataform_models.broadband_base as bb
+ORDER BY bb.broadband_service_start_date
 """
 
 broadband_identifier = 'bb.account_number'

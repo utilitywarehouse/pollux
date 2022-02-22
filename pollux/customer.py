@@ -9,6 +9,7 @@ from bqhelper import BQConnection
 import numpy as np
 from collections import OrderedDict
 from sortedcontainers import SortedSet
+from copy import deepcopy
 import logging
 log = logging.getLogger(__name__)
 
@@ -19,12 +20,15 @@ class Cohort:
 
     #TODO Generate cohort from query that returns customer ids
 
-    def __init__(self, customers, base_data=None):
+    def __init__(self, customers, base_data=None, enrichments=None):
         self.customers = customers
         if base_data is not None:
             self.base_data = base_data
 
-        self.applied_enrichments = []
+        if enrichments:
+            self.enrichments = enrichments
+        else:
+            self.enrichments = []
 
         self.customer_lookup = {cus.customer_id:cus for cus in self.customers}
 
@@ -58,10 +62,11 @@ class Cohort:
 
     def generate_cohort(self, cohort_function):
         cohort_customers = [cus for cus in self if cohort_function(cus)]
-        return Cohort(customers=cohort_customers)
+        # The enrichments are inherited from the parent cohort
+        return Cohort(customers=cohort_customers, enrichments=deepcopy(self.enrichments))
 
 
-    def update_customers(self, enrichment_name):
+    def update_customers(self, enrichment_name, registry=registry):
         if enrichment_name not in registry:
             log.warning('Enrichment not registered')
         else:
@@ -70,7 +75,7 @@ class Cohort:
             # customers with that data
             enrichment.query_data()
             enrichment.update_cohort(self)
-            self.applied_enrichments.append(enrichment.name)
+            self.enrichments.append(enrichment_name)
 
 
 

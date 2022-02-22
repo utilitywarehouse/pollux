@@ -2,13 +2,6 @@ from abc import ABC, abstractmethod
 
 class EnrichmentData(ABC):
 
-    @staticmethod
-    @abstractmethod
-    def generate_significant_timestamps(customer):
-        """If the new data adds to the significant events,
-            it should return the timestamps for a customer"""
-        pass
-
     @abstractmethod
     def update_cohort(self, cohort):
         """Decides how to update the customers with the pulled data"""
