@@ -8,6 +8,22 @@ This has the benefit that other downstream applications and tools can make use o
 
 The form of object/class about a customer is not necessarily a natural choice, as the data usually has a very different structure underneath.
 
+### Installation
+
+Running
+```
+pip install -r requirements.txt
+```
+should get all external requirements.
+Internally we'll need  `bqhelper` for the big query accesses.
+Git clone and run a local install, e.g.
+```
+git clone git@github.com:utilitywarehouse/bqhelper.git
+cd bqhelper
+python setup.py develop
+```
+
+
 ## Initialisation
 
 ### Individual Customers
