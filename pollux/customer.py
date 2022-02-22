@@ -8,7 +8,6 @@ from pollux.enrichment.enrichments import registry
 from bqhelper import BQConnection
 import numpy as np
 from collections import OrderedDict
-from sortedcontainers import SortedSet
 from copy import deepcopy
 import logging
 log = logging.getLogger(__name__)

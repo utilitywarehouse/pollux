@@ -1,6 +1,5 @@
 from pollux.enrichment.enrichment_utils import EnrichmentData
 from bqhelper import BQConnection
-from sortedcontainers import SortedSet
 import pollux.queries.queries as queries
 import logging
 import pandas as pd
