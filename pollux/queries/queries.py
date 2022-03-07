@@ -26,5 +26,26 @@ ORDER BY bb.broadband_service_start_date
 
 broadband_identifier = 'bb.account_number'
 
+is_query = """
+SELECT * FROM `uw-data-models-prod.customer_dataform_models.customer_initial_services` as iserv
+"""
+
+initial_services_identifier = 'iserv.account_number'
+
+cb_v2_query_string = """
+SELECT * FROM `uw-data-models-prod.cashback_dataform_models.cashback_card_v2_base` as cbc
+"""
+
+cb_v2_identifier = 'cbc.account_number'
+
+cb_v3_query_string = """
+SELECT * FROM `uw-data-models-prod.cashback_dataform_models.cashback_card_v3_base` as cbc
+"""
+
+cb_v3_identifier = 'cbc.account_number'
+
 base_table_query = query_generator(base_table_query, base_table_identifier)
 bb_query = query_generator(broadband_query, broadband_identifier)
+initial_services_query = query_generator(is_query, initial_services_identifier)
+cb_v2_query = query_generator(cb_v2_query_string, cb_v2_identifier)
+cb_v3_query = query_generator(cb_v3_query_string, cb_v3_identifier)
